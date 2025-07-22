@@ -1,4 +1,4 @@
-package org.example;
+package org.example.dto;
 
 import org.example.models.Vehicle;
 
@@ -49,3 +49,4 @@ public class CreateReservationDTO {
         return endDate;
     }
 }
+
