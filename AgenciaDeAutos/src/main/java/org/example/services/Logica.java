@@ -70,7 +70,7 @@ public class Logica {
                 if(finishReservationDTO.getReturnDate().isAfter(reservation.getEndDate())){
                     BigDecimal total = reservation.getTotalCost();
                     BigDecimal tenPercent = (BigDecimal.valueOf(10)).multiply(reservation.getTotalCost()).divide(BigDecimal.valueOf(100));
-                    long days = ChronoUnit.DAYS.between(finishReservationDTO.getReturnDate(),reservation.getEndDate());
+                    long days = ChronoUnit.DAYS.between(reservation.getEndDate(), finishReservationDTO.getReturnDate());
                     while (days != 0){
                         total = total.add(tenPercent);
                         days--;
