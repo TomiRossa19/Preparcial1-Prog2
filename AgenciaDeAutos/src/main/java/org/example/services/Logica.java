@@ -16,6 +16,7 @@ import org.hibernate.Session;
 
 import java.math.BigDecimal;
 import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,17 +37,18 @@ public class Logica {
 
     public boolean createReservation(CreateReservationDTO createReservationDTO){
         try(Session session = HibernateUtil.getSession()){
-
             Vehicle vehicle = session.get(Vehicle.class, createReservationDTO.getVehicleID());
 
             if(vehicle == null){
                 System.out.println("El auto no existe");
                 return false;
             }else{
-                Integer days = Period.between(createReservationDTO.getStartDate(), createReservationDTO.getEndDate()).getDays();
+                long days = ChronoUnit.DAYS.between(createReservationDTO.getStartDate(), createReservationDTO.getEndDate());
                 BigDecimal totalCost = vehicle.getDailyRate().multiply(BigDecimal.valueOf(days));
                 Reservation reservation = new Reservation(createReservationDTO.getClientName(), createReservationDTO.getVehicleID(), createReservationDTO.getStartDate(), createReservationDTO.getEndDate(), totalCost, StatusEnum.RESERVED);
                 vehicle.setAvailable(false);
+
+                session.beginTransaction();
 
                 session.persist(reservation);
                 session.merge(vehicle);
@@ -68,8 +70,7 @@ public class Logica {
                 if(finishReservationDTO.getReturnDate().isAfter(reservation.getEndDate())){
                     BigDecimal total = reservation.getTotalCost();
                     BigDecimal tenPercent = (BigDecimal.valueOf(10)).multiply(reservation.getTotalCost()).divide(BigDecimal.valueOf(100));
-                    Integer days = Period.between(finishReservationDTO.getReturnDate(),reservation.getEndDate()).getDays();
-
+                    long days = ChronoUnit.DAYS.between(finishReservationDTO.getReturnDate(),reservation.getEndDate());
                     while (days != 0){
                         total = total.add(tenPercent);
                         days--;
